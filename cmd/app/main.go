@@ -1,10 +1,14 @@
 package main
 
 import (
+	"borsodoy/radovid/internal/database"
 	"borsodoy/radovid/router"
 )
 
 func main() {
-	r := router.SetupRouter()
-	r.Run(":8080")
+	router := router.SetupRouter()
+
+	database.Initialize()
+
+	router.Run(":8080")
 }

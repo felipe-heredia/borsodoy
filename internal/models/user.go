@@ -7,13 +7,14 @@ import (
 )
 
 type User struct {
-	ID        uuid.UUID
+	ID        uuid.UUID `gorm:"type:uuid;primaryKey"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
+	DeletedAt *time.Time
 	Name      string
-	Email     string
+	Email     string `gorm:"uniqueIndex"`
 	Password  string
-	Balance   int
+	Balance   uint32 `gorm:"default:0"`
 }
 
 type CreateUser struct {

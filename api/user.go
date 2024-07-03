@@ -1,13 +1,15 @@
 package api
 
 import (
+	"borsodoy/radovid/internal/database"
 	"borsodoy/radovid/internal/models"
+	"errors"
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
 
 func hashPassword(password string) string {
@@ -18,10 +20,12 @@ func hashPassword(password string) string {
 	return string(hashedPasswordBytes)
 }
 
-var users []*models.User
-
 func GetUsers(c *gin.Context) {
-	c.IndentedJSON(http.StatusOK, &users)
+	var users []*models.User
+
+	database.Database.Find(&users)
+
+	c.IndentedJSON(http.StatusOK, users)
 }
 
 func CreateUser(c *gin.Context) {
@@ -32,16 +36,27 @@ func CreateUser(c *gin.Context) {
 		return
 	}
 
-	newUser := models.User{
-		ID:        uuid.New(),
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
-		Name:      newUserData.Name,
-		Email:     newUserData.Email,
-		Password:  hashPassword(newUserData.Password),
-		Balance:   0,
+	if newUserData.Name == "" || newUserData.Email == "" || newUserData.Password == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Name, Email, and Password are required"})
+		return
 	}
 
-	users = append(users, &newUser)
+	newUser := models.User{
+		ID:       uuid.New(),
+		Name:     newUserData.Name,
+		Email:    newUserData.Email,
+		Password: hashPassword(newUserData.Password),
+	}
+
+	if err := database.Database.Create(&newUser).Error; err != nil {
+		if errors.Is(err, gorm.ErrDuplicatedKey) {
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "Email already exists"})
+			return
+		}
+
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
 	c.IndentedJSON(http.StatusOK, newUser)
 }
