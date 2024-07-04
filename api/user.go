@@ -3,22 +3,14 @@ package api
 import (
 	"borsodoy/radovid/internal/database"
 	"borsodoy/radovid/internal/models"
+	"borsodoy/radovid/pkg/utility"
 	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
-
-func hashPassword(password string) string {
-	var passwordBytes = []byte(password)
-
-	hashedPasswordBytes, _ := bcrypt.GenerateFromPassword(passwordBytes, bcrypt.MinCost)
-
-	return string(hashedPasswordBytes)
-}
 
 func GetUsers(c *gin.Context) {
 	var users []*models.User
@@ -45,7 +37,7 @@ func CreateUser(c *gin.Context) {
 		ID:       uuid.New(),
 		Name:     newUserData.Name,
 		Email:    newUserData.Email,
-		Password: hashPassword(newUserData.Password),
+		Password: utility.HashPassword(newUserData.Password),
 	}
 
 	if err := database.Database.Create(&newUser).Error; err != nil {
@@ -59,4 +51,16 @@ func CreateUser(c *gin.Context) {
 	}
 
 	c.IndentedJSON(http.StatusOK, newUser)
+}
+
+func GetUserById(c *gin.Context) {
+	id := c.Param("id")
+	var user *models.User
+
+	if err := database.Database.First(&user, "id = ?", id).Error; err != nil {
+		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "User not found"})
+		return
+	}
+
+	c.IndentedJSON(http.StatusOK, user)
 }

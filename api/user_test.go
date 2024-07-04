@@ -18,6 +18,7 @@ import (
 )
 
 var localRouter *gin.Engine
+var johnDoeId uuid.UUID
 
 func TestMain(m *testing.M) {
 	gin.SetMode(gin.TestMode)
@@ -44,6 +45,7 @@ func Test_CreateUser(test *testing.T) {
 
 	var createdUser models.User
 	json.Unmarshal(recorder.Body.Bytes(), &createdUser)
+	johnDoeId = createdUser.ID
 
 	assert.Equal(test, 200, recorder.Code)
 	assert.Equal(test, exampleUser.Name, createdUser.Name)
@@ -84,8 +86,47 @@ func Test_CreateUser_shouldErrByJSONInvalid(test *testing.T) {
 
 	var body struct{ Message string }
 	json.Unmarshal(recorder.Body.Bytes(), &body)
-	fmt.Println(body)
 
 	assert.Equal(test, 400, recorder.Code)
 	assert.Equal(test, "Name, Email, and Password are required", body.Message)
+}
+
+func Test_GetUsers(test *testing.T) {
+	recorder := httptest.NewRecorder()
+
+	req, _ := http.NewRequest(http.MethodGet, "/users", nil)
+	localRouter.ServeHTTP(recorder, req)
+
+	var body []models.User
+	json.Unmarshal(recorder.Body.Bytes(), &body)
+
+	assert.Equal(test, 1, len(body))
+}
+
+func Test_GetUserById(test *testing.T) {
+	recorder := httptest.NewRecorder()
+
+	url := fmt.Sprintf("/user/%s", johnDoeId.String())
+	req, _ := http.NewRequest(http.MethodGet, url, nil)
+	localRouter.ServeHTTP(recorder, req)
+
+	var body models.User
+	json.Unmarshal(recorder.Body.Bytes(), &body)
+	fmt.Println(body)
+
+	assert.Equal(test, http.StatusOK, recorder.Code)
+	assert.Equal(test, johnDoeId, body.ID)
+}
+
+func Test_GetUserById_shouldNotFindAnyUser(test *testing.T) {
+	recorder := httptest.NewRecorder()
+
+	req, _ := http.NewRequest(http.MethodGet, "/user/1", nil)
+	localRouter.ServeHTTP(recorder, req)
+
+	var body struct{ Message string }
+	json.Unmarshal(recorder.Body.Bytes(), &body)
+
+	assert.Equal(test, http.StatusNotFound, recorder.Code)
+	assert.Equal(test, "User not found", body.Message)
 }

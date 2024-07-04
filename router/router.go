@@ -11,6 +11,7 @@ func SetupRouter() *gin.Engine {
 
 	router.GET("/users", api.GetUsers)
 	router.POST("/user", api.CreateUser)
+	router.GET("/user/:id", api.GetUserById)
 
 	router.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{
