@@ -3,7 +3,6 @@ package api
 import (
 	"borsodoy/radovid/internal/database"
 	"borsodoy/radovid/internal/models"
-	"borsodoy/radovid/router"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -22,7 +21,12 @@ var johnDoeId uuid.UUID
 
 func TestMain(m *testing.M) {
 	gin.SetMode(gin.TestMode)
-	localRouter = router.SetupRouter()
+	localRouter = gin.Default()
+
+	localRouter.GET("/users", GetUsers)
+	localRouter.POST("/user", CreateUser)
+	localRouter.GET("/user/:id", GetUserById)
+
 	database.SetupTestDB()
 
 	code := m.Run()
