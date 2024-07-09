@@ -3,13 +3,14 @@ package api
 import (
 	"borsodoy/radovid/internal/models"
 	"borsodoy/radovid/internal/service"
+	"borsodoy/radovid/pkg/utility"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
 func GetUsers(c *gin.Context) {
-  users := service.GetUsers()
+	users := service.GetUsers()
 
 	c.IndentedJSON(http.StatusOK, users)
 }
@@ -25,7 +26,7 @@ func CreateUser(c *gin.Context) {
 	newUser, err := service.CreateUser(newUserData)
 
 	if err != nil {
-		if httpError, ok := err.(*service.HttpError); ok {
+		if httpError, ok := err.(*utility.HttpError); ok {
 			c.JSON(httpError.Status, gin.H{"message": httpError.Message})
 			return
 		}
@@ -39,14 +40,19 @@ func CreateUser(c *gin.Context) {
 
 func GetUserById(c *gin.Context) {
 	id := c.Param("id")
-  user, err := service.GetUserById(id)
+	user, err := service.GetUserById(id)
 
-  if err != nil {
-    if httpError, ok := err.(*service.HttpError); ok {
-      c.JSON(httpError.Status, gin.H{"message": httpError.Message})
-      return
-    }
-  }
+	if err != nil {
+		if httpError, ok := err.(*utility.HttpError); ok {
+			c.JSON(httpError.Status, gin.H{"message": httpError.Message})
+			return
+		}
+	}
 
 	c.IndentedJSON(http.StatusOK, user)
+}
+
+func Protected(c *gin.Context) {
+	email, _ := c.Get("email")
+	c.JSON(http.StatusOK, gin.H{"message": "Hello " + email.(string)})
 }

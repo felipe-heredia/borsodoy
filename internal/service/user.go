@@ -13,7 +13,7 @@ import (
 
 func CreateUser(userData models.CreateUser) (*models.User, error) {
 	if userData.Name == "" || userData.Email == "" || userData.Password == "" {
-    return nil, &HttpError{ Message: "Name, Email, and Password are required", Status: http.StatusBadRequest }
+    return nil, &utility.HttpError{ Message: "Name, Email, and Password are required", Status: http.StatusBadRequest }
 	}
 
 	newUser := models.User{
@@ -25,10 +25,10 @@ func CreateUser(userData models.CreateUser) (*models.User, error) {
 
 	if err := database.Database.Create(&newUser).Error; err != nil {
 		if errors.Is(err, gorm.ErrDuplicatedKey) {
-      return nil, &HttpError{ Message: "Email already exists", Status: http.StatusBadRequest }
+      return nil, &utility.HttpError{ Message: "Email already exists", Status: http.StatusBadRequest }
 		}
 
-    return nil, &HttpError{ Message: "Internal Server Error", Status: http.StatusInternalServerError }
+    return nil, &utility.HttpError{ Message: "Internal Server Error", Status: http.StatusInternalServerError }
 	}
 
   return &newUser, nil
@@ -46,7 +46,7 @@ func GetUserById(id string) (*models.User, error) {
   var user *models.User
 
   if err := database.Database.First(&user, "id = ?", id).Error; err != nil {
-    return nil, &HttpError{ Message: "User not found", Status: http.StatusNotFound }
+    return nil, &utility.HttpError{ Message: "User not found", Status: http.StatusNotFound }
   }
 
   return user, nil
@@ -56,7 +56,7 @@ func GetUserByEmail(email string) (*models.User, error) {
   var user *models.User
 
   if err := database.Database.First(&user, "email = ?", email).Error; err != nil {
-    return nil, &HttpError{ Message: "User not found", Status: http.StatusNotFound }
+    return nil, &utility.HttpError{ Message: "User not found", Status: http.StatusNotFound }
   }
 
   return user, nil

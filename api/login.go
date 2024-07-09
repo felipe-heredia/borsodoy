@@ -2,11 +2,11 @@ package api
 
 import (
 	"borsodoy/radovid/internal/service"
+	"borsodoy/radovid/pkg/utility"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
-
 
 func Login(c *gin.Context) {
 	var loginData service.LoginProps
@@ -16,10 +16,10 @@ func Login(c *gin.Context) {
 		return
 	}
 
-  responseBody, err := service.Login(loginData)
+	responseBody, err := service.Login(loginData)
 
 	if err != nil {
-		if httpError, ok := err.(*service.HttpError); ok {
+		if httpError, ok := err.(*utility.HttpError); ok {
 			c.JSON(httpError.Status, gin.H{"message": httpError.Message})
 			return
 		}
@@ -27,7 +27,6 @@ func Login(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to login"})
 		return
 	}
-
 
 	c.IndentedJSON(http.StatusOK, responseBody)
 }

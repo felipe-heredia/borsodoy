@@ -18,13 +18,13 @@ type LoginResponse struct {
 func Login(loginData LoginProps) (*LoginResponse, error) {
 
 	if loginData.Email == "" || loginData.Password == "" {
-		return nil, &HttpError{Status: http.StatusBadRequest, Message: "Email and password are required."}
+		return nil, &utility.HttpError{Status: http.StatusBadRequest, Message: "Email and password are required."}
 	}
 
 	user, err := GetUserByEmail(loginData.Email)
 
 	if err != nil {
-		if httpError, ok := err.(*HttpError); ok {
+		if httpError, ok := err.(*utility.HttpError); ok {
 			return nil, httpError
 		}
 
@@ -34,10 +34,10 @@ func Login(loginData LoginProps) (*LoginResponse, error) {
 	passwordAreEqual := utility.CompareHasAndPassword(loginData.Password, user.Password)
 
 	if !passwordAreEqual {
-		return nil, &HttpError{Status: http.StatusUnauthorized, Message: "Wrong password"}
+		return nil, &utility.HttpError{Status: http.StatusUnauthorized, Message: "Wrong password"}
 	}
 
-	tokenData := utility.GenerateToken(user.ID)
+	tokenData := utility.GenerateToken(user.ID, user.Email)
 
 	loginResponse := &LoginResponse{
 		AccessToken: tokenData.AccessToken,
