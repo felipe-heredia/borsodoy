@@ -9,21 +9,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func GetUsers(c *gin.Context) {
-	users := service.GetUsers()
+func CreateItem(c *gin.Context) {
+	var newItemData models.CreateItem
 
-	c.IndentedJSON(http.StatusOK, users)
-}
-
-func CreateUser(c *gin.Context) {
-	var newUserData models.CreateUser
-
-	if err := c.BindJSON(&newUserData); err != nil {
+	if err := c.BindJSON(&newItemData); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	newUser, err := service.CreateUser(newUserData)
+	newItem, err := service.CreateItem(newItemData)
 
 	if err != nil {
 		if httpError, ok := err.(*utility.HttpError); ok {
@@ -35,12 +29,15 @@ func CreateUser(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, newUser)
+	c.JSON(http.StatusOK, newItem)
 }
 
-func GetUserById(c *gin.Context) {
+func GetItemById(c *gin.Context) {
 	id := c.Param("id")
-	user, err := service.GetUserById(id)
+	if id == "" {
+		panic("error")
+	}
+	item, err := service.GetItemById(id)
 
 	if err != nil {
 		if httpError, ok := err.(*utility.HttpError); ok {
@@ -49,5 +46,5 @@ func GetUserById(c *gin.Context) {
 		}
 	}
 
-	c.IndentedJSON(http.StatusOK, user)
+	c.IndentedJSON(http.StatusOK, item)
 }

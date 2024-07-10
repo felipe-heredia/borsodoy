@@ -21,10 +21,12 @@ func SetupRouter() *gin.Engine {
 	router.GET("/user/:id", api.GetUserById)
 
 	router.POST("/login", api.Login)
+
 	protected := router.Group("/")
 	protected.Use(middleware.AuthMiddleware())
 	{
-		protected.GET("/protected", api.Protected)
+		protected.POST("/item", api.CreateItem)
+    protected.GET("/item/:id", api.GetItemById)
 	}
 
 	return router

@@ -2,6 +2,7 @@ package api
 
 import (
 	"borsodoy/radovid/internal/database"
+	"borsodoy/radovid/internal/middleware"
 	"borsodoy/radovid/internal/models"
 	"encoding/json"
 	"fmt"
@@ -28,6 +29,13 @@ func TestMain(m *testing.M) {
 	localRouter.GET("/user/:id", GetUserById)
 
 	localRouter.POST("/login", Login)
+
+	protected := localRouter.Group("/")
+	protected.Use(middleware.AuthMiddleware())
+	{
+		protected.POST("/item", CreateItem)
+		protected.GET("/item/:id", GetItemById)
+	}
 
 	database.SetupTestDB()
 

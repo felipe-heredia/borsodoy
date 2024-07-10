@@ -16,7 +16,6 @@ type LoginResponse struct {
 }
 
 func Login(loginData LoginProps) (*LoginResponse, error) {
-
 	if loginData.Email == "" || loginData.Password == "" {
 		return nil, &utility.HttpError{Status: http.StatusBadRequest, Message: "Email and password are required."}
 	}
@@ -41,7 +40,7 @@ func Login(loginData LoginProps) (*LoginResponse, error) {
 
 	loginResponse := &LoginResponse{
 		AccessToken: tokenData.AccessToken,
-    ExpireAt: tokenData.ExpireAt,
+		ExpireAt:    tokenData.ExpireAt,
 	}
 
 	return loginResponse, nil
