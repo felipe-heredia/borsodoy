@@ -4,6 +4,7 @@ import (
 	"borsodoy/radovid/internal/database"
 	"borsodoy/radovid/internal/middleware"
 	"borsodoy/radovid/internal/models"
+	"borsodoy/radovid/internal/service"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -17,10 +18,57 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var localRouter *gin.Engine
-var johnDoeId uuid.UUID
+var (
+	localRouter *gin.Engine
+	user        models.User
+	johnDoeId   uuid.UUID
+	accessToken string
+)
 
-func TestMain(m *testing.M) {
+func createGlobalUser() {
+    recorder := httptest.NewRecorder()
+
+    exampleUser := models.CreateUser{
+        Name:     "Example User",
+        Email:    "user@example.com",
+        Password: "securepassword",
+    }
+    exampleUserJson, _ := json.Marshal(exampleUser)
+    createUserReq, _ := http.NewRequest(http.MethodPost, "/user", strings.NewReader(string(exampleUserJson)))
+    localRouter.ServeHTTP(recorder, createUserReq)
+
+    if recorder.Code != http.StatusOK {
+        fmt.Printf("Failed to create user: %v\n", recorder.Body.String())
+        return
+    }
+
+    json.Unmarshal(recorder.Body.Bytes(), &user)
+}
+
+func loginGlobalUser() {
+    recorder := httptest.NewRecorder()
+
+    loginBody := service.LoginProps{
+        Email:    "user@example.com",
+        Password: "securepassword",
+    }
+    loginBodyJson, _ := json.Marshal(loginBody)
+    loginReq, _ := http.NewRequest(http.MethodPost, "/login", strings.NewReader(string(loginBodyJson)))
+    localRouter.ServeHTTP(recorder, loginReq)
+
+    if recorder.Code != http.StatusOK {
+        fmt.Printf("Failed to login user: %v\n", recorder.Body.String())
+        return
+    }
+
+    var loginBodyResponse struct {
+        AccessToken string `json:"access_token"`
+    }
+    json.Unmarshal(recorder.Body.Bytes(), &loginBodyResponse)
+    accessToken = loginBodyResponse.AccessToken
+}
+
+func setupRouter() {
 	gin.SetMode(gin.TestMode)
 	localRouter = gin.Default()
 
@@ -35,9 +83,17 @@ func TestMain(m *testing.M) {
 	{
 		protected.POST("/item", CreateItem)
 		protected.GET("/item/:id", GetItemById)
+		protected.POST("/bid", CreateBid)
+    protected.DELETE("/bid/:id", WithdrawnBid)
 	}
+}
 
+func TestMain(m *testing.M) {
+  setupRouter()
 	database.SetupTestDB()
+
+  createGlobalUser()
+  loginGlobalUser()
 
 	code := m.Run()
 

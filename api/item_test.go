@@ -2,7 +2,6 @@ package api
 
 import (
 	"borsodoy/radovid/internal/models"
-	"borsodoy/radovid/internal/service"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -16,13 +15,8 @@ import (
 )
 
 var itemID uuid.UUID
-var accessToken string
 
 func Test_CreateItem(test *testing.T) {
-	user, _ := service.CreateUser(models.CreateUser{Name: "John Doe Bidder", Email: "john.bidder@doe.com", Password: "securepassword"})
-	login, _ := service.Login(service.LoginProps{Email: "john.bidder@doe.com", Password: "securepassword"})
-	accessToken = login.AccessToken
-
 	recorder := httptest.NewRecorder()
 
 	requestBody := models.CreateItem{

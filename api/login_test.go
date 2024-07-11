@@ -1,7 +1,6 @@
 package api
 
 import (
-	"borsodoy/radovid/internal/models"
 	"borsodoy/radovid/internal/service"
 	"encoding/json"
 	"net/http"
@@ -13,12 +12,10 @@ import (
 )
 
 func Test_Login(test *testing.T) {
-	service.CreateUser(models.CreateUser{Name: "John Doe", Email: "john@doe.com", Password: "securepassword"})
-
 	recorder := httptest.NewRecorder()
 
 	requestBody := service.LoginProps{
-		Email:    "john@doe.com",
+		Email:    user.Email,
 		Password: "securepassword",
 	}
 	requestBodyJson, _ := json.Marshal(requestBody)
