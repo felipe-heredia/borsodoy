@@ -20,6 +20,7 @@ type Item struct {
 	ExpiredAt   time.Time `json:"expired_at"`
 
 	User *User `json:"user"`
+  Bids *[]Bid `json:"bids"`
 }
 
 type CreateItem struct {

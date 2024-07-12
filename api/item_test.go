@@ -14,8 +14,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var itemID uuid.UUID
-
 func Test_CreateItem(test *testing.T) {
 	recorder := httptest.NewRecorder()
 
@@ -34,8 +32,6 @@ func Test_CreateItem(test *testing.T) {
 	var responseBody *models.Item
 	json.Unmarshal(recorder.Body.Bytes(), &responseBody)
 
-	itemID = responseBody.ID
-
 	assert.Equal(test, http.StatusOK, recorder.Code)
 	assert.NotEqual(test, uuid.Nil, responseBody.ID)
 	assert.Equal(test, requestBody.Name, responseBody.Name)
@@ -49,7 +45,7 @@ func Test_CreateItem(test *testing.T) {
 func Test_GetItemById(test *testing.T) {
 	recorder := httptest.NewRecorder()
 
-	url := fmt.Sprintf("/item/%s", itemID.String())
+	url := fmt.Sprintf("/item/%s", itemId.String())
 	req, _ := http.NewRequest(http.MethodGet, url, nil)
 	req.Header.Set("Authorization", accessToken)
 	localRouter.ServeHTTP(recorder, req)
@@ -58,7 +54,7 @@ func Test_GetItemById(test *testing.T) {
 	json.Unmarshal(recorder.Body.Bytes(), &body)
 
 	assert.Equal(test, http.StatusOK, recorder.Code)
-	assert.Equal(test, itemID, body.ID)
+	assert.Equal(test, itemId, body.ID)
 }
 
 func Test_GetItemById_shouldNotFindAnyItem(test *testing.T) {

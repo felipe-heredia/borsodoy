@@ -26,7 +26,9 @@ func SetupRouter() *gin.Engine {
 	protected.Use(middleware.AuthMiddleware())
 	{
 		protected.POST("/item", api.CreateItem)
-    protected.GET("/item/:id", api.GetItemById)
+		protected.GET("/item/:id", api.GetItemById)
+		protected.POST("/bid", api.CreateBid)
+		protected.DELETE("/bid/:id", api.WithdrawnBid)
 	}
 
 	return router

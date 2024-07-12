@@ -19,7 +19,7 @@ func Initialize() {
 		log.Fatal("failed to connect database")
 	}
 
-	Database.AutoMigrate(new(models.User), new(models.Item))
+	Database.AutoMigrate(new(models.User), new(models.Item), new(models.Bid))
 }
 
 func SetupTestDB() {
@@ -30,5 +30,5 @@ func SetupTestDB() {
 		log.Fatal("failed to connect database")
 	}
 
-	Database.AutoMigrate(new(models.User), new(models.Item))
+	Database.AutoMigrate(new(models.User), new(models.Item), new(models.Bid))
 }

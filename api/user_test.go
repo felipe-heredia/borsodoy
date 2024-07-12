@@ -21,7 +21,7 @@ import (
 var (
 	localRouter *gin.Engine
 	user        models.User
-	johnDoeId   uuid.UUID
+	johnDoeId, itemId   uuid.UUID
 	accessToken string
 )
 
@@ -68,6 +68,27 @@ func loginGlobalUser() {
     accessToken = loginBodyResponse.AccessToken
 }
 
+func createGlobalItem() {
+	recorder := httptest.NewRecorder()
+
+	requestBody := models.CreateItem{
+		Name:      "Notebook",
+		Price:     3000,
+		ExpiresIn: 60,
+		UserID:    user.ID,
+	}
+	requestBodyJson, _ := json.Marshal(requestBody)
+
+	req, _ := http.NewRequest(http.MethodPost, "/item", strings.NewReader(string(requestBodyJson)))
+	req.Header.Set("Authorization", accessToken)
+	localRouter.ServeHTTP(recorder, req)
+
+	var responseBody *models.Item
+	json.Unmarshal(recorder.Body.Bytes(), &responseBody)
+
+	itemId = responseBody.ID
+}
+
 func setupRouter() {
 	gin.SetMode(gin.TestMode)
 	localRouter = gin.Default()
@@ -94,6 +115,7 @@ func TestMain(m *testing.M) {
 
   createGlobalUser()
   loginGlobalUser()
+  createGlobalItem()
 
 	code := m.Run()
 

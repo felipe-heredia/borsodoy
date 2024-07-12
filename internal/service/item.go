@@ -31,7 +31,7 @@ func CreateItem(data models.CreateItem) (*models.Item, error) {
 func GetItemById(id string) (*models.Item, error) {
 	var item *models.Item
 
-	if err := database.Database.Preload("User").First(&item, "id = ?", id).Error; err != nil {
+	if err := database.Database.Preload("User").Preload("Bids", "withdrawn_at > ?", time.Now()).First(&item, "id = ?", id).Error; err != nil {
 		return nil, &utility.HttpError{Message: "Item not found", Status: http.StatusNotFound}
 	}
 
