@@ -17,6 +17,10 @@ func CreateBid(data models.CreateBid) (*models.Bid, error) {
     return nil, &utility.HttpError{Message: "Bid amount smaller than item price", Status: http.StatusBadRequest}
   }
 
+  if item.UserID == data.UserID {
+    return nil, &utility.HttpError{Message: "You can't bid in your item", Status: http.StatusConflict}
+  }
+
   newBid := models.Bid{
     ID: uuid.New(),
     Amount: data.Amount,

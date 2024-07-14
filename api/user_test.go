@@ -19,53 +19,101 @@ import (
 )
 
 var (
-	localRouter *gin.Engine
-	user        models.User
-	johnDoeId, itemId   uuid.UUID
-	accessToken string
+	localRouter                        *gin.Engine
+	user, bidderUser                   models.User
+	johnDoeId, itemId                  uuid.UUID
+	accessToken, bidderUserAccessToken string
 )
 
 func createGlobalUser() {
-    recorder := httptest.NewRecorder()
+	recorder := httptest.NewRecorder()
 
-    exampleUser := models.CreateUser{
-        Name:     "Example User",
-        Email:    "user@example.com",
-        Password: "securepassword",
-    }
-    exampleUserJson, _ := json.Marshal(exampleUser)
-    createUserReq, _ := http.NewRequest(http.MethodPost, "/user", strings.NewReader(string(exampleUserJson)))
-    localRouter.ServeHTTP(recorder, createUserReq)
+	exampleUser := models.CreateUser{
 
-    if recorder.Code != http.StatusOK {
-        fmt.Printf("Failed to create user: %v\n", recorder.Body.String())
-        return
-    }
+		Name:     "Example User",
+		Email:    "user@example.com",
+		Password: "securepassword",
+	}
+	exampleUserJson, _ := json.Marshal(exampleUser)
+	createUserReq, _ := http.NewRequest(http.MethodPost, "/user", strings.NewReader(string(exampleUserJson)))
+	localRouter.ServeHTTP(recorder, createUserReq)
 
-    json.Unmarshal(recorder.Body.Bytes(), &user)
+	if recorder.Code != http.StatusOK {
+		fmt.Printf("Failed to create user: %v\n", recorder.Body.String())
+		return
+	}
+
+	json.Unmarshal(recorder.Body.Bytes(), &user)
+
+  loginGlobalUser()
+}
+
+func createGlobalBidderUser() {
+	recorder := httptest.NewRecorder()
+
+	bidderUser := models.CreateUser{
+		Name:     "Bidder User",
+		Email:    "user@bidder.com",
+		Password: "securepassword",
+	}
+	exampleUserJson, _ := json.Marshal(bidderUser)
+	createUserReq, _ := http.NewRequest(http.MethodPost, "/user", strings.NewReader(string(exampleUserJson)))
+	localRouter.ServeHTTP(recorder, createUserReq)
+
+	if recorder.Code != http.StatusOK {
+		fmt.Printf("Failed to create user: %v\n", recorder.Body.String())
+		return
+	}
+
+	json.Unmarshal(recorder.Body.Bytes(), &bidderUser)
+
+  loginGlobalBidderUser()
 }
 
 func loginGlobalUser() {
-    recorder := httptest.NewRecorder()
+	recorder := httptest.NewRecorder()
 
-    loginBody := service.LoginProps{
-        Email:    "user@example.com",
-        Password: "securepassword",
-    }
-    loginBodyJson, _ := json.Marshal(loginBody)
-    loginReq, _ := http.NewRequest(http.MethodPost, "/login", strings.NewReader(string(loginBodyJson)))
-    localRouter.ServeHTTP(recorder, loginReq)
+	loginBody := service.LoginProps{
+		Email:    "user@bidder.com",
+		Password: "securepassword",
+	}
+	loginBodyJson, _ := json.Marshal(loginBody)
+	loginReq, _ := http.NewRequest(http.MethodPost, "/login", strings.NewReader(string(loginBodyJson)))
+	localRouter.ServeHTTP(recorder, loginReq)
 
-    if recorder.Code != http.StatusOK {
-        fmt.Printf("Failed to login user: %v\n", recorder.Body.String())
-        return
-    }
+	if recorder.Code != http.StatusOK {
+		fmt.Printf("Failed to login user: %v\n", recorder.Body.String())
+		return
+	}
 
-    var loginBodyResponse struct {
-        AccessToken string `json:"access_token"`
-    }
-    json.Unmarshal(recorder.Body.Bytes(), &loginBodyResponse)
-    accessToken = loginBodyResponse.AccessToken
+	var loginBodyResponse struct {
+		AccessToken string `json:"access_token"`
+	}
+	json.Unmarshal(recorder.Body.Bytes(), &loginBodyResponse)
+	bidderUserAccessToken = loginBodyResponse.AccessToken
+}
+
+func loginGlobalBidderUser() {
+	recorder := httptest.NewRecorder()
+
+	loginBody := service.LoginProps{
+		Email:    "user@example.com",
+		Password: "securepassword",
+	}
+	loginBodyJson, _ := json.Marshal(loginBody)
+	loginReq, _ := http.NewRequest(http.MethodPost, "/login", strings.NewReader(string(loginBodyJson)))
+	localRouter.ServeHTTP(recorder, loginReq)
+
+	if recorder.Code != http.StatusOK {
+		fmt.Printf("Failed to login user: %v\n", recorder.Body.String())
+		return
+	}
+
+	var loginBodyResponse struct {
+		AccessToken string `json:"access_token"`
+	}
+	json.Unmarshal(recorder.Body.Bytes(), &loginBodyResponse)
+	accessToken = loginBodyResponse.AccessToken
 }
 
 func createGlobalItem() {
@@ -105,17 +153,17 @@ func setupRouter() {
 		protected.POST("/item", CreateItem)
 		protected.GET("/item/:id", GetItemById)
 		protected.POST("/bid", CreateBid)
-    protected.DELETE("/bid/:id", WithdrawnBid)
+		protected.DELETE("/bid/:id", WithdrawnBid)
 	}
 }
 
 func TestMain(m *testing.M) {
-  setupRouter()
+	setupRouter()
 	database.SetupTestDB()
 
-  createGlobalUser()
-  loginGlobalUser()
-  createGlobalItem()
+	createGlobalUser()
+  createGlobalBidderUser()
+	createGlobalItem()
 
 	code := m.Run()
 

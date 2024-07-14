@@ -23,7 +23,7 @@ func Test_CreateBid(test *testing.T) {
 		Amount:      3100,
 		WithdrawnIn: 60,
 		ItemID:      itemId,
-		UserID:      user.ID,
+		UserID:      bidderUser.ID,
 	}
 	requestBodyJson, _ := json.Marshal(requestBody)
 
@@ -35,11 +35,34 @@ func Test_CreateBid(test *testing.T) {
 
 	assert.Equal(test, http.StatusOK, recorder.Code)
 	assert.NotEqual(test, uuid.Nil, bid.ID)
-	assert.Equal(test, bid.UserID, user.ID)
+	assert.Equal(test, bid.UserID, bidderUser.ID)
 	assert.Equal(test, bid.ItemID, itemId)
 
 	shouldExpireAt := time.Now().Add(time.Duration(requestBody.WithdrawnIn) * time.Minute)
 	assert.GreaterOrEqual(test, shouldExpireAt, bid.WithdrawnAt)
+}
+
+func Test_CreateBid_shouldNotBidInItsOwnItem(test *testing.T) {
+	recorder := httptest.NewRecorder()
+
+	requestBody := models.CreateBid{
+		Amount:      3100,
+		WithdrawnIn: 60,
+		ItemID:      itemId,
+		UserID:      user.ID,
+	}
+	requestBodyJson, _ := json.Marshal(requestBody)
+
+	req, _ := http.NewRequest(http.MethodPost, "/bid", strings.NewReader(string(requestBodyJson)))
+	req.Header.Set("Authorization", accessToken)
+	localRouter.ServeHTTP(recorder, req)
+
+  var responseBody struct{Message string}
+	json.Unmarshal(recorder.Body.Bytes(), &responseBody)
+
+	assert.Equal(test, http.StatusConflict, recorder.Code)
+  assert.Equal(test, "You can't bid in your item", responseBody.Message)
+
 }
 
 func Test_WithdrawnBid(test *testing.T) {
