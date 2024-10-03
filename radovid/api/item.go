@@ -48,3 +48,16 @@ func GetItemById(c *gin.Context) {
 
 	c.IndentedJSON(http.StatusOK, item)
 }
+
+func GetItems(c *gin.Context) {
+  items, err := service.GetItems()
+
+	if err != nil {
+		if httpError, ok := err.(*utility.HttpError); ok {
+			c.JSON(httpError.Status, gin.H{"message": httpError.Message})
+			return
+		}
+	}
+
+	c.IndentedJSON(http.StatusOK, items)
+}

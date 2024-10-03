@@ -37,3 +37,11 @@ func GetItemById(id string) (*models.Item, error) {
 
 	return item, nil
 }
+
+func GetItems() ([]*models.Item, error) {
+  var items []*models.Item
+
+	database.Database.Preload("User").Preload("Bids").Find(&items, "expired_at > ?", time.Now())
+
+	return items, nil
+}

@@ -19,6 +19,8 @@ func SetupRouter() *gin.Engine {
 	router.GET("/users", api.GetUsers)
 	router.POST("/user", api.CreateUser)
 	router.GET("/user/:id", api.GetUserById)
+	router.GET("/items/", api.GetItems)
+  router.GET("/item/:id", api.GetItemById)
 
 	router.POST("/login", api.Login)
 
@@ -26,7 +28,6 @@ func SetupRouter() *gin.Engine {
 	protected.Use(middleware.AuthMiddleware())
 	{
 		protected.POST("/item", api.CreateItem)
-		protected.GET("/item/:id", api.GetItemById)
 		protected.POST("/bid", api.CreateBid)
 		protected.DELETE("/bid/:id", api.WithdrawnBid)
 	}
