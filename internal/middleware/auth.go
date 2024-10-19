@@ -1,8 +1,9 @@
 package middleware
 
 import (
-	"radovid/pkg/utility"
 	"net/http"
+	"radovid/pkg/utility"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -16,7 +17,14 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		token, err := utility.ValidateToken(tokenString)
+		splitToken := strings.Split(tokenString, "Bearer ")
+		if len(splitToken) != 2 {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token format"})
+			c.Abort()
+			return
+		}
+
+		token, err := utility.ValidateToken(splitToken[1])
 
 		if err != nil {
 			if httpError, ok := err.(*utility.HttpError); ok {
@@ -28,7 +36,7 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-    c.Set("email", token.Cliams.Email)
+		c.Set("email", token.Cliams.Email)
 		c.Next()
 	}
 }
