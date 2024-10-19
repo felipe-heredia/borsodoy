@@ -1,8 +1,8 @@
 package main
 
 import (
-	"borsodoy/radovid/internal/database"
-	"borsodoy/radovid/router"
+	"radovid/internal/database"
+	"radovid/router"
 )
 
 func main() {

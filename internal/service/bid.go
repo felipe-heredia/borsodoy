@@ -1,9 +1,9 @@
 package service
 
 import (
-	"borsodoy/radovid/internal/database"
-	"borsodoy/radovid/internal/models"
-	"borsodoy/radovid/pkg/utility"
+	"radovid/internal/database"
+	"radovid/internal/models"
+	"radovid/pkg/utility"
 	"net/http"
 	"time"
 

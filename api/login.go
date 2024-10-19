@@ -1,8 +1,8 @@
 package api
 
 import (
-	"borsodoy/radovid/internal/service"
-	"borsodoy/radovid/pkg/utility"
+	"radovid/internal/service"
+	"radovid/pkg/utility"
 	"net/http"
 
 	"github.com/gin-gonic/gin"

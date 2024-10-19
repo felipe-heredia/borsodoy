@@ -1,8 +1,8 @@
 package router
 
 import (
-	"borsodoy/radovid/api"
-	"borsodoy/radovid/internal/middleware"
+	"radovid/api"
+	"radovid/internal/middleware"
 
 	"github.com/gin-gonic/gin"
 )

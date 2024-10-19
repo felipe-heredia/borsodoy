@@ -1,7 +1,7 @@
 package api
 
 import (
-	"borsodoy/radovid/internal/models"
+	"radovid/internal/models"
 	"encoding/json"
 	"fmt"
 	"net/http"

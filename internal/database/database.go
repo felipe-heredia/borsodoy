@@ -1,7 +1,7 @@
 package database
 
 import (
-	"borsodoy/radovid/internal/models"
+	"radovid/internal/models"
 	"log"
 
 	"gorm.io/driver/sqlite"

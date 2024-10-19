@@ -1,7 +1,7 @@
 package api
 
 import (
-	"borsodoy/radovid/internal/service"
+	"radovid/internal/service"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"

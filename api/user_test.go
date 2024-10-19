@@ -1,10 +1,10 @@
 package api
 
 import (
-	"borsodoy/radovid/internal/database"
-	"borsodoy/radovid/internal/middleware"
-	"borsodoy/radovid/internal/models"
-	"borsodoy/radovid/internal/service"
+	"radovid/internal/database"
+	"radovid/internal/middleware"
+	"radovid/internal/models"
+	"radovid/internal/service"
 	"encoding/json"
 	"fmt"
 	"net/http"

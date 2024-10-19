@@ -1,7 +1,7 @@
 package service
 
 import (
-	"borsodoy/radovid/pkg/utility"
+	"radovid/pkg/utility"
 	"net/http"
 	"time"
 )

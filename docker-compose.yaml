@@ -1,8 +1,8 @@
-name: borsodoy
+name: radovid
 
 services:
   radovid:
-    container_name: borsodoy_radovid
+    container_name: radovid
     command: "air -c .air.toml"
     ports:
       - "8080:8080"

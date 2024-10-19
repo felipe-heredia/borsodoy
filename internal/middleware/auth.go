@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"borsodoy/radovid/pkg/utility"
+	"radovid/pkg/utility"
 	"net/http"
 
 	"github.com/gin-gonic/gin"

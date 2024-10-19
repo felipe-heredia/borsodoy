@@ -1,4 +1,4 @@
-module borsodoy/radovid
+module radovid
 
 go 1.22
 

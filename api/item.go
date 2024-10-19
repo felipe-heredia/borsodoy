@@ -1,20 +1,16 @@
 package api
 
 import (
-	"borsodoy/radovid/internal/models"
-	"borsodoy/radovid/internal/service"
-	"borsodoy/radovid/pkg/utility"
-	"fmt"
+	"radovid/internal/models"
+	"radovid/internal/service"
+	"radovid/pkg/utility"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
 func CreateItem(c *gin.Context) {
-  var heredia := "oi"
 	var newItemData models.CreateItem
-
-    fmt.Println(heredia)
 
 	if err := c.BindJSON(&newItemData); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
